@@ -9,7 +9,7 @@ const ShowData: React.FunctionComponent<IShowDataProps> = (props) => {
        <h1>data valid</h1>
   )
   return(
-    <p>loading...</p>
+    <p>loading2...</p>
   )
   
 };
