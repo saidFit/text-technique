@@ -41,7 +41,7 @@ const [address,setAddress] = useState<string>('');
             return;
            } 
 
-           console.log('valid');
+         
            
      try {
          const {data:{user}} = await newRequest.post('apiLogin',{name:name,telephone:telephone,address:address})

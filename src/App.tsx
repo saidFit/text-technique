@@ -44,10 +44,6 @@ const App: React.FunctionComponent<IAppProps> = (props) => {
     getData(); 
   }, []); 
 
- React.useEffect(()=>{
-   console.log(TypeButton);
-   
- },[TypeButton])
 
   return(
    
