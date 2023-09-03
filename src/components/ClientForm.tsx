@@ -1,5 +1,7 @@
+import axios from 'axios';
 import * as React from 'react';
 import { useState } from 'react';
+import newRequest from '../utils/NewRequest';
 
 interface IShowDataProps {
     // data:any[] | null
@@ -13,10 +15,10 @@ const [LoadingButton,setLoadingButton] = useState<boolean>(false);
 const [name,setName] = useState<string>('');
 const [telephone,setTelephone] = useState<string>('');
 const [address,setAddress] = useState<string>('');
-    const handleSumbit = (e:any) =>{
-        e.preventDefault();
-        console.log('ll');
 
+    const handleSumbit = async(e:any) =>{
+        e.preventDefault();
+        setLoadingButton(true);
        if(!name){
            setErrors((prev:any) => [...prev,'name']);
        }else{
@@ -33,18 +35,29 @@ const [address,setAddress] = useState<string>('');
             setErrors((prev:any) => prev.filter((item:string,ind:number) => item !== 'address'))
            }
 
-           if(!name || !telephone || !address) return setErrorAlter("there's a input(s) empty!")
+           if(!name || !telephone || !address){
+            setErrorAlter("there's a input(s) empty!")
+            setLoadingButton(false);
+            return;
+           } 
 
+           console.log('valid');
+           
+     try {
+         const {data:{user}} = await newRequest.post('apiLogin',{name:name,telephone:telephone,address:address})
+        //TODO----using localStorage to store user---//
+        localStorage.setItem('user',JSON.stringify(user));
+     } catch (error) {
+        throw error;
+     }
+     setLoadingButton(false);
         
     }
-React.useEffect(() =>{
-  console.log(errors);
-  
-},[errors])
+
 
   return(
     <form onSubmit={(e) => handleSumbit(e)} className='w-full max-w-[400px] my-24 border border-gray-400 pb-8 shadow-MyBox1 rounded-md px-12 mx-auto'>
-        <h1 className='text-xl opacity-70 font-bold text-center my-8'>Login</h1>
+        <h1 className='text-xl opacity-70 font-bold text-center my-8'>create a compte</h1>
       <article className="space-y-3 flex flex-col">
         <div className="flex flex-col space-y-2">
           <label>

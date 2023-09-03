@@ -1,5 +1,6 @@
 import * as React from 'react';
 import { useState } from 'react';
+import newRequest from '../utils/NewRequest';
 
 interface ICategoryFormProps {
 }
@@ -11,28 +12,47 @@ const CategoryForm: React.FunctionComponent<ICategoryFormProps> = (props) => {
     const [LoadingButton,setLoadingButton] = React.useState<boolean>(false);
     const [categoryName,setcategoryName] = React.useState<string>('');
     
-        const handleSumbit = (e:any) =>{
-            const encoder = new TextEncoder();
-            console.log(encoder);
-            
+        const handleSumbit = async(e:any) =>{
+           setLoadingButton(true);
             e.preventDefault();
-            console.log('ll');
-    
+
            if(!categoryName){
                setErrors((prev:any) => [...prev,'categoryName']);
            }else{
             setErrors((prev:any) => prev.filter((item:string,ind:number) => item !== 'categoryName'))
            }
         
-         if(!categoryName) return setErrorAlter("there's a input(s) empty!")
+         if(!categoryName){
+            setErrorAlter("there's a input(s) empty!")
+            setTimeout(() => {
+               setLoadingButton(false);  
+            }, 600);
+          
+            return;
+         } 
+
+
+         try {
+            const config = {
+                headers: {
+                    "Content-Type": "application/json",
+                    Authorization: `Bearer ${"token of user"}`,
+                  },
+              };
+            const {data} = await newRequest.post('apiCreateCategory',{categoryName:categoryName},config)
+            // this data return the all of categorys that exist in database + this new of just return this new category depend on the logic of backend;
+        } catch (error) {
+           throw error;
+        }
     
+        setLoadingButton(false);
             
         }
     
     
       return(
         <form onSubmit={(e) => handleSumbit(e)} className='w-full max-w-[400px] my-24 border border-gray-400 pb-8 shadow-MyBox1 rounded-md px-12 mx-auto'>
-            <h1 className='text-xl opacity-70 font-bold text-center my-8'>Login</h1>
+            <h1 className='text-xl opacity-70 font-bold text-center my-8'>create a category</h1>
           <article className="space-y-3 flex flex-col">
             <div className="flex flex-col space-y-2">
               <label>
@@ -81,11 +101,7 @@ const CategoryForm: React.FunctionComponent<ICategoryFormProps> = (props) => {
               </button>
             )}
            {errorAlert && <p className='p-3 text-center rounded-md bg-AlertColor-danger-BgDanger text-AlertColor-danger-TextDanger border border-AlertColor-danger-BorderDanger'>{errorAlert}</p>} 
-            {/* <button onClick={()=> props.setToggle('register')} className=" underline text-gray-400 transition-all duration-300 hover:text-gray-500">register right now</button> */}
-            {/* <button type="button" className="text-white bg-[#4285F4] hover:bg-[#4285F4]/90 focus:ring-4 focus:outline-none focus:ring-[#4285F4]/50 font-medium rounded-lg text-sm px-5 py-2.5 text-center inline-flex justify-center items-center dark:focus:ring-[#4285F4]/55 mr-2 mb-2">
-      <svg className="w-4 h-4 mr-2 -ml-1" aria-hidden="true" focusable="false" data-prefix="fab" data-icon="google" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 488 512"><path fill="currentColor" d="M488 261.8C488 403.3 391.1 504 248 504 110.8 504 0 393.2 0 256S110.8 8 248 8c66.8 0 123 24.5 166.3 64.9l-67.5 64.9C258.5 52.6 94.3 116.6 94.3 256c0 86.5 69.1 156.6 153.7 156.6 98.2 0 135-70.4 140.8-106.9H248v-85.3h236.1c2.3 12.7 3.9 24.9 3.9 41.4z"></path></svg>
-      Sign in with Google
-    </button> */}
+          
           </article>
         </form>
       );

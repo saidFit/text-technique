@@ -1,5 +1,6 @@
 import * as React from 'react';
 import { useState } from 'react';
+import newRequest from '../utils/NewRequest';
 
 interface IProductFormProps {
 }
@@ -12,14 +13,15 @@ const ProductForm: React.FunctionComponent<IProductFormProps> = (props) => {
     const [name,setName] = useState<string>('');
     const [stock,setStock] = useState<string>('');
     const [category,setcategory] = useState<string>('');
+    const [idProduct,setIdProduct] = useState<string | null>(null);
     const [categorysDefault,setcategorysDefault] = useState<string[]>(['T-shirts','Hoodies','Jackets','Sweaters','Blouses'])
     const [address,setAddress] = useState<string>('');
 
-        const handleSumbit = (e:any) =>{
+        const handleSumbit = async(e:any) =>{
+            setLoadingButton(true);
             e.preventDefault();
-            console.log('ll');
             const timestamp = new Date().getTime().toString();
-            console.log(timestamp);
+            setIdProduct(timestamp);
             
            if(!name){
                setErrors((prev:any) => [...prev,'name']);
@@ -32,16 +34,35 @@ const ProductForm: React.FunctionComponent<IProductFormProps> = (props) => {
          setErrors((prev:any) => prev.filter((item:string,ind:number) => item !== 'stock'))
         }
             
-        if(!name) return setErrorAlter("there's a input(s) empty!")   
+        if(!name){
+            setErrorAlter("there's a input(s) empty!")
+            setLoadingButton(false);
+            return;
+           } 
+
+            try {
+                const config = {
+                    headers: {
+                        "Content-Type": "application/json",
+                        Authorization: `Bearer ${"token of user"}`,
+                      },
+                  };
+            const stockToInt = parseInt(stock);      
+            const {data} = await newRequest.post('apiCreateCategory',{name:name,idProduct:idProduct,stock:stockToInt,category:category},config)
+            // this data return the all of categorys that exist in database + this new or just return this new category depend on the logic of backend;
+        } catch (error) {
+           throw error;
         }
-    React.useEffect(() =>{
-      console.log(category);
-      
-    },[category])
+        setLoadingButton(false);
+
+        }
+
+        
+   
     
       return(
         <form onSubmit={(e) => handleSumbit(e)} className='w-full max-w-[400px] my-24 border border-gray-400 pb-8 shadow-MyBox1 rounded-md px-12 mx-auto'>
-            <h1 className='text-xl opacity-70 font-bold text-center my-8'>Login</h1>
+            <h1 className='text-xl opacity-70 font-bold text-center my-8'>create a product</h1>
           <article className="space-y-3 flex flex-col">
             <div className="flex flex-col space-y-2">
               <label>
